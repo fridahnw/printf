@@ -1,53 +1,67 @@
 #include <stdarg.h>
 #include <unistd.h>
-#include <string.h>
 #include "main.h"
+/**
+ * _putchar - Custom implementation of putchar to print a single character
+ * @c: The character to be printed
+ * Return: On success, return the number of characters written.
+ */
+int _putchar(char c)
+{
+	return write(1, &c, 1);
+}
 
 /**
- * _printf - produces output according to a format
- * @format: character string composed of zero or more directives
- *
- * Return: the number of characters printed (excluding the null byte used to
- * end output to strings)
+ * _printf - Custom implementation of printf function
+ * @format: The format string containing directives
+ * Return: The number of characters printed (excluding the null byte)
  */
 int _printf(const char *format, ...)
 {
-	int count = 0;
-	char c;
-	int i;
 	va_list args;
+	int printed_chars = 0;
 
 	va_start(args, format);
 
-	for (i = 0; format[i] != '\0'; i++)
+	while (*format)
 	{
-		if (format[i] != '%')
+		if (*format == '%')
 		{
-			write(1, &format[i], 1);
-			count++;
-		}
-		else
-		{
-			i++;
-			switch (format[i])
+			format++;
+			switch (*format)
 			{
 				case 'c':
-					c = va_arg(args, int);
-					write(1, &c, 1);
-					count++;
+					printed_chars += _putchar(va_arg(args, int));
 					break;
 				case 's':
-					count += write(1, va_arg(args, char *), strlen(va_arg(args, char *)));
-					break;
+					{
+						char *str = va_arg(args, char *);
+						if (str == NULL)
+							str = "(null)";
+						while (*str)
+						{
+							printed_chars += _putchar(*str);
+							str++;
+						}
+						break;
+					}
 				case '%':
-					write(1, "%", 1);
-					count++;
+					printed_chars += _putchar('%');
 					break;
 				default:
+					printed_chars += _putchar('%');
+					printed_chars += _putchar(*format);
 					break;
 			}
 		}
+		else
+		{
+			printed_chars += _putchar(*format);
+		}
+
+		format++;
 	}
+
 	va_end(args);
-	return (count);
+	return (printed_chars);
 }
